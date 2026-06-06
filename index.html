@@ -80,7 +80,7 @@
   <button onclick="showView('anomalies')">Anomalies</button>
   <button onclick="showView('imn')">📈 IMN (N=625)</button>
   <button onclick="showView('j2')">🎙️ J2 (N=23)</button>
-  <button onclick="showView('pilotage')">📋 Pilotage (84%)</button>
+  <button onclick="showView('pilotage')">📋 Pilotage (85%)</button>
 </nav>
 
 <!-- ═══════════════ VUE CORPUS ═══════════════ -->
@@ -339,7 +339,7 @@ function renderAnomalies() {
 // ══ 3 NOUVEAUX ONGLETS ══
 function renderIMN(){const p={N1:{n:150},N2:{n:215},N3:{n:180},N4:{n:65},N5:{n:15}};const l=Object.keys(p),v=l.map(k=>p[k].n);Plotly.newPlot('chartImnProfils',[{x:l,y:v,type:'bar',marker:{color:'#3b82f6'},text:v,textposition:'outside'}],{...LAYOUT(),height:280},{responsive:true});}
 function renderJ2(){Plotly.newPlot('chartJ2Profils',[{labels:['N1','N2','N3','N4','N5'],values:[2,3,8,7,3],type:'pie',hole:.4,marker:{colors:['#ef4444','#f97316','#f59e0b','#22c55e','#3b82f6']},textfont:{color:'#f1f5f9'}}],{...LAYOUT(),height:280},{responsive:true});}
-function renderPilotage(){const c=[{l:'A',p:85,r:'#f59e0b'},{l:'B',p:100,r:'#22c55e'},{l:'C',p:97,r:'#22c55e'},{l:'D',p:35,r:'#ef4444'},{l:'E',p:93,r:'#3b82f6'},{l:'F',p:90,r:'#22c55e'},{l:'G',p:95,r:'#22c55e'},{l:'H',p:20,r:'#6b7280'}];Plotly.newPlot('chartPilotageChantiers',[{x:c.map(x=>x.p),y:c.map(x=>x.l),type:'bar',orientation:'h',marker:{color:c.map(x=>x.r)},text:c.map(x=>x.p+'%'),textposition:'outside'}],{...LAYOUT(),height:300,margin:{t:10,b:40,l:40,r:60},xaxis:{range:[0,110]},yaxis:{autorange:'reversed'}},{responsive:true});}
+function renderPilotage(){const c=[{l:'A',p:85,r:'#f59e0b'},{l:'B',p:100,r:'#22c55e'},{l:'C',p:97,r:'#22c55e'},{l:'D',p:35,r:'#ef4444'},{l:'E',p:95,r:'#3b82f6'},{l:'F',p:92,r:'#22c55e'},{l:'G',p:97,r:'#22c55e'},{l:'H',p:20,r:'#6b7280'}];Plotly.newPlot('chartPilotageChantiers',[{x:c.map(x=>x.p),y:c.map(x=>x.l),type:'bar',orientation:'h',marker:{color:c.map(x=>x.r)},text:c.map(x=>x.p+'%'),textposition:'outside'}],{...LAYOUT(),height:300,margin:{t:10,b:40,l:40,r:60},xaxis:{range:[0,110]},yaxis:{autorange:'reversed'}},{responsive:true});}
 
 // Init
 renderCorpus();
@@ -350,6 +350,6 @@ renderCorpus();
 
 <div id="view-j2" class="view"><div class="kpi-grid"><div class="kpi"><div class="val" style="color:#22c55e">23/23</div><div class="lbl">Entretiens</div></div><div class="kpi"><div class="val" style="color:#22c55e">100%</div><div class="lbl">Complétion</div></div><div class="kpi"><div class="val">60</div><div class="lbl">Durée moy</div></div><div class="kpi"><div class="val">5</div><div class="lbl">Profils</div></div></div><div id="chartJ2Profils" style="height:300px;margin:20px 0;"></div></div>
 
-<div id="view-pilotage" class="view"><div class="kpi-grid"><div class="kpi"><div class="val" style="color:#22c55e">84%</div><div class="lbl">GLOBAL</div></div><div class="kpi"><div class="val">1094</div><div class="lbl">Heures</div></div><div class="kpi"><div class="val">1555</div><div class="lbl">Total</div></div><div class="kpi"><div class="val">9</div><div class="lbl">Jalons ✅</div></div></div><div id="chartPilotageChantiers" style="height:320px;margin:20px 0;"></div></div>
+<div id="view-pilotage" class="view"><div class="kpi-grid"><div class="kpi"><div class="val" style="color:#22c55e">85%</div><div class="lbl">GLOBAL</div></div><div class="kpi"><div class="val">1 110</div><div class="lbl">Heures</div></div><div class="kpi"><div class="val">1555</div><div class="lbl">Total</div></div><div class="kpi"><div class="val">9</div><div class="lbl">Jalons ✅</div></div></div><div id="chartPilotageChantiers" style="height:320px;margin:20px 0;"></div></div>
 
-</body></html>
+</body></html
