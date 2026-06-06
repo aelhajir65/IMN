@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard EAC · MEMNM-2026 · CERSS</title>
+<title>Dashboard EAC · IMN N=625 · J2 · MEMNM-2026 / CERSS</title>
 <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
 <style>
   :root {
@@ -61,6 +61,57 @@
   .progress { flex:1; height:12px; background:var(--border); border-radius:6px; overflow:hidden; }
   .progress-fill { height:100%; border-radius:6px; transition:width .3s; }
   @media(max-width:768px){.charts-2{grid-template-columns:1fr;}}
+
+  /* ── Sous-titre header ── */
+  header .subtitle { font-size:.75rem; color:var(--text-muted); margin-top:2px; }
+  header .subtitle strong { color:var(--text); }
+
+  /* ── Tooltips nav ── */
+  nav { position:relative; }
+  nav button { position:relative; }
+  nav button[data-tip]:hover::after {
+    content: attr(data-tip);
+    position:absolute; top:calc(100% + 8px); left:50%;
+    transform:translateX(-50%);
+    background:#1e293b; border:1px solid #475569; color:#f1f5f9;
+    padding:7px 11px; border-radius:7px; font-size:.72rem;
+    white-space:normal; width:230px; text-align:center;
+    z-index:200; line-height:1.45; pointer-events:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);
+  }
+  nav button[data-tip]:hover::before {
+    content:''; position:absolute; top:calc(100% + 2px); left:50%;
+    transform:translateX(-50%);
+    border:6px solid transparent; border-bottom-color:#475569; z-index:200;
+  }
+
+  /* ── KPI sous-label permanent ── */
+  .kpi .lbl-detail {
+    font-size:.63rem; color:#64748b; margin-top:4px; line-height:1.35;
+    border-top:1px solid var(--border); padding-top:5px;
+  }
+
+  /* ── Intro de vue ── */
+  .view-intro {
+    font-size:.82rem; color:var(--text-muted); background:var(--card);
+    border:1px solid var(--border); border-left:3px solid var(--blue);
+    border-radius:6px; padding:10px 16px; margin-bottom:18px; line-height:1.5;
+  }
+
+  /* ── Note de graphique ── */
+  .chart-note {
+    font-size:.72rem; color:#64748b; margin-top:8px; line-height:1.4;
+    font-style:italic; padding:0 4px;
+  }
+
+  /* ── Glossaire ── */
+  .gloss-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:768px){.gloss-grid{grid-template-columns:1fr;}}
+  .gloss-section h4 { font-size:.75rem; color:var(--blue); text-transform:uppercase;
+                       letter-spacing:.06em; margin-bottom:8px; }
+  .gloss-section dl { font-size:.8rem; }
+  .gloss-section dt { color:var(--text); font-weight:600; margin-top:8px; font-family:monospace; }
+  .gloss-section dd { color:var(--text-muted); margin-left:0; line-height:1.45; }
 </style>
 </head>
 <body>
@@ -68,32 +119,35 @@
 <header>
   <div>
     <h1>📊 Dashboard EAC · MEMNM-2026 / CERSS</h1>
+    <div class="subtitle"><strong>Prof. Aziz El Hajir</strong> · CERSS, Rabat · Dir. sc. <strong>Prof. Abdallah Saaf</strong> &nbsp;|&nbsp; Société Civile et Écosystèmes Numériques au Maroc</div>
     <div class="meta">BDD V1.6f · 05/06/2026 · 142 posts annotés · 35 OSC</div>
   </div>
   <div id="alerteB" class="alerte-rouge">⚠️ 47.4% — SEUIL SCÉNARIO B ATTEINT</div>
 </header>
 
 <nav>
-  <button class="active" onclick="showView('corpus')">Vue corpus</button>
-  <button onclick="showView('osc')">Vue OSC</button>
-  <button onclick="showView('nlp')">Vue NLP</button>
-  <button onclick="showView('anomalies')">Anomalies</button>
-  <button onclick="showView('imn')">📈 IMN (N=625)</button>
-  <button onclick="showView('j2')">🎙️ J2 (N=23)</button>
-  <button onclick="showView('pilotage')">📋 Pilotage (85%)</button>
+  <button class="active" onclick="showView('corpus')" data-tip="Posts Facebook et YouTube collectés et annotés manuellement — base empirique de l'étude EAC">Vue corpus</button>
+  <button onclick="showView('osc')" data-tip="Tableau filtrable des OSC par quadrant de maturité numérique (Q-I à Q-IV) et profil algorithmique">Vue OSC</button>
+  <button onclick="showView('nlp')" data-tip="Analyse automatique du langage : thèmes, sentiments et signaux de pénalisation algorithmique détectés">Vue NLP</button>
+  <button onclick="showView('anomalies')" data-tip="OSC présentant des périodes d'inactivité anormalement longues — indicateur potentiel de shadow ban ou suppression">Anomalies</button>
+  <button onclick="showView('imn')" data-tip="Index de Maturité Numérique — score composite mesuré sur 625 OSC marocaines selon 8 dimensions (présence, contenus, gouvernance…)">📈 IMN (N=625)</button>
+  <button onclick="showView('j2')" data-tip="2ᵉ vague d'entretiens qualitatifs : 23 responsables d'OSC interrogés en profondeur sur leurs pratiques et perceptions numériques">🎙️ J2 (N=23)</button>
+  <button onclick="showView('pilotage')" data-tip="Avancement global de la recherche MEMNM-2026 par chantier (A=Collecte → H=Finalisation). Score pondéré par les heures.">📋 Pilotage (85%)</button>
+  <button onclick="showView('glossaire')" data-tip="Définitions des abréviations et codes utilisés dans ce dashboard">📖 Glossaire</button>
 </nav>
 
 <!-- ═══════════════ VUE CORPUS ═══════════════ -->
 <div id="view-corpus" class="view active">
+  <div class="view-intro">Corpus empirique de l'étude EAC (Espaces Algorithmiques et Citoyenneté) : posts collectés sur Facebook (Phase P1) et YouTube (Phase P0), annotés manuellement selon le référentiel NLP V1.8. Chaque post est attribué à une OSC et classé par quadrant de maturité numérique.</div>
   <div class="kpi-grid">
-    <div class="kpi"><div class="val">142</div><div class="lbl">Posts annotés</div></div>
-    <div class="kpi"><div class="val">71</div><div class="lbl">Facebook P1</div></div>
-    <div class="kpi"><div class="val">71</div><div class="lbl">YouTube P0</div></div>
-    <div class="kpi"><div class="val">35</div><div class="lbl">OSC corpus</div></div>
-    <div class="kpi"><div class="val" id="kpiSilTotal">–</div><div class="lbl">Posts SIL_ALGO_FB</div></div>
-    <div class="kpi"><div class="val" id="kpiChilling">5</div><div class="lbl">CHILLING INCERTAIN</div></div>
-    <div class="kpi"><div class="val" id="kpiH2b">5</div><div class="lbl">H2b : SIL×TH_RISK</div></div>
-    <div class="kpi"><div class="val">11</div><div class="lbl">REJET</div></div>
+    <div class="kpi"><div class="val">142</div><div class="lbl">Posts annotés</div><div class="lbl-detail">Total validé BDD V1.6f (P0+P1)</div></div>
+    <div class="kpi"><div class="val">71</div><div class="lbl">Facebook P1</div><div class="lbl-detail">Phase P1 — comptes Facebook OSC (2024-2025)</div></div>
+    <div class="kpi"><div class="val">71</div><div class="lbl">YouTube P0</div><div class="lbl-detail">Phase P0 — chaînes YouTube OSC (collecte initiale)</div></div>
+    <div class="kpi"><div class="val">35</div><div class="lbl">OSC corpus</div><div class="lbl-detail">Organisations représentées dans le corpus</div></div>
+    <div class="kpi"><div class="val" id="kpiSilTotal">–</div><div class="lbl">Posts SIL_ALGO_FB</div><div class="lbl-detail">Signal de silenciation algorithmique Facebook (portée réduite)</div></div>
+    <div class="kpi"><div class="val" id="kpiChilling">5</div><div class="lbl">CHILLING INCERTAIN</div><div class="lbl-detail">Effet d'auto-censure possible, non confirmé (CHILLING_SUGGESTIF)</div></div>
+    <div class="kpi"><div class="val" id="kpiH2b">5</div><div class="lbl">H2b : SIL×TH_RISK</div><div class="lbl-detail">Test H2b : posts sur thèmes sensibles (droits humains, genre) davantage pénalisés ?</div></div>
+    <div class="kpi"><div class="val">11</div><div class="lbl">REJET</div><div class="lbl-detail">Posts exclus du corpus (hors périmètre ou données insuffisantes)</div></div>
   </div>
 
   <div class="seuil-bar">
@@ -106,20 +160,22 @@
     </div>
     <div style="color:var(--text-muted);font-size:.8rem;">Seuil B</div>
     <div class="progress" style="width:4px;background:#f59e0b;border-radius:0;flex:0"></div>
+    <div style="font-size:.7rem;color:#94a3b8;max-width:280px;line-height:1.4;">⚠️ Le Scénario B est atteint quand ≥ 40 % des posts du quadrant Q-III présentent un signal SIL_ALGO_FB. Ce seuil confirmerait une pénalisation structurelle des OSC à forte maturité externe.</div>
   </div>
 
   <div class="charts-2">
-    <div class="chart-card"><h3>Distribution par quadrant × plateforme</h3><div id="chartQuad" style="height:280px"></div></div>
-    <div class="chart-card"><h3>SIL_ALGO_FB par quadrant (Facebook) · seuil 40%</h3><div id="chartSilQuad" style="height:280px"></div></div>
+    <div class="chart-card"><h3>Distribution par quadrant × plateforme</h3><div id="chartQuad" style="height:280px"></div><p class="chart-note">Q-I = maturité numérique faible, Q-IV = fort. Montre si la visibilité algorithmique varie selon le niveau de maturité de l'OSC.</p></div>
+    <div class="chart-card"><h3>SIL_ALGO_FB par quadrant (Facebook) · seuil 40%</h3><div id="chartSilQuad" style="height:280px"></div><p class="chart-note">Taux de signal SIL_ALGO_FB par quadrant. Au-delà de 40 %, le Scénario B (pénalisation structurelle) est considéré atteint — seuil critique pour l'hypothèse H1.</p></div>
   </div>
   <div class="charts-2">
-    <div class="chart-card"><h3>Engagement moyen Ind.B par quadrant (Facebook)</h3><div id="chartRatio" style="height:260px"></div></div>
-    <div class="chart-card"><h3>Signaux EAC — distribution corpus Facebook</h3><div id="chartSignaux" style="height:260px"></div></div>
+    <div class="chart-card"><h3>Engagement moyen Ind.B par quadrant (Facebook)</h3><div id="chartRatio" style="height:260px"></div><p class="chart-note">Ind.B = ratio (likes+commentaires) / portée estimée. Un Ind.B bas sur Q-III/Q-IV avec SIL_ALGO_FB élevé renforce l'hypothèse de pénalisation.</p></div>
+    <div class="chart-card"><h3>Signaux EAC — distribution corpus Facebook</h3><div id="chartSignaux" style="height:260px"></div><p class="chart-note">Types de signaux algorithmiques annotés : SIL_ALGO_FB (silenciation), RELAY_MÉDIA (relai externe), AUCUN. Base : 71 posts Facebook Phase P1.</p></div>
   </div>
 </div>
 
 <!-- ═══════════════ VUE OSC ═══════════════ -->
 <div id="view-osc" class="view">
+  <div class="view-intro">Répertoire des 35 OSC du corpus EAC. Chaque organisation est positionnée dans un quadrant de maturité numérique (Q-I à Q-IV) selon son score IMN, et caractérisée par son profil algorithmique (Iso_fort, Hybride, Iso_faible). Utilisez les filtres pour explorer par quadrant ou profil.</div>
   <div class="filter-bar">
     <select id="filterQuad" onchange="filterOSC()">
       <option value="">Tous quadrants</option>
@@ -144,15 +200,18 @@
 
 <!-- ═══════════════ VUE NLP ═══════════════ -->
 <div id="view-nlp" class="view">
+  <div class="view-intro">Résultats du traitement NLP (Natural Language Processing) appliqué au corpus EAC selon le référentiel V1.8. Chaque post est annoté avec un thème principal (TH_P), un thème secondaire (TH_S), un sentiment et un signal algorithmique. L'accord inter-annotateurs (κ Claude/Gemini) est de 0,74 — seuil de fiabilité atteint.</div>
   <div class="charts-2">
-    <div class="chart-card"><h3>Thèmes principaux — 143 posts annotés</h3><div id="chartThemes" style="height:320px"></div></div>
-    <div class="chart-card"><h3>Sentiments</h3><div id="chartSents" style="height:320px"></div></div>
+    <div class="chart-card"><h3>Thèmes principaux — 143 posts annotés</h3><div id="chartThemes" style="height:320px"></div><p class="chart-note">TH_CULT = culture/patrimoine · TH_GOV = gouvernance/institutionnel · TH_GENRE = genre/droits femmes · TH_RISK = contenu à risque politique · TH_ENV = environnement</p></div>
+    <div class="chart-card"><h3>Sentiments</h3><div id="chartSents" style="height:320px"></div><p class="chart-note">Polarité émotionnelle annotée manuellement. Un sentiment négatif combiné à SIL_ALGO_FB peut indiquer une pénalisation des contenus protestataires.</p></div>
   </div>
   <div class="chart-card" style="margin-bottom:16px"><h3>Matrice H2b — SIL_ALGO_FB × TH_RISK (test pénalisation thématique)</h3>
+    <p class="chart-note" style="margin-bottom:8px">H2b teste si les posts traitant de thèmes sensibles (droits humains, genre, gouvernance) sont proportionnellement plus silenciés. Chaque ligne = un post portant simultanément un signal SIL_ALGO_FB et un thème à risque (TH_RISK).</p>
     <table><thead><tr><th>Post</th><th>OSC</th><th>Thème P</th><th>Thème S</th><th>Ratio</th><th>CHILLING</th></tr></thead>
     <tbody id="h2bBody"></tbody></table>
   </div>
   <div class="chart-card"><h3>CHILLING_SUGGESTIF = INCERTAIN</h3>
+    <p class="chart-note" style="margin-bottom:8px">Posts où un effet de CHILLING (auto-censure induite par la surveillance algorithmique) est suspecté mais non confirmé. Statut INCERTAIN = à requalifier en Phase P2 avec données supplémentaires.</p>
     <table><thead><tr><th>Post</th><th>OSC</th><th>Signal</th><th>Ratio</th></tr></thead>
     <tbody id="chillingBody"></tbody></table>
   </div>
@@ -160,9 +219,11 @@
 
 <!-- ═══════════════ VUE ANOMALIES ═══════════════ -->
 <div id="view-anomalies" class="view">
+  <div class="view-intro">Périodes d'inactivité anormalement longues détectées sur les comptes OSC — une absence soudaine de publication peut indiquer une suspension de compte, un shadow ban (restriction invisible), ou une auto-censure prolongée. Ces cas constituent des signaux d'alerte pour l'hypothèse H3.</div>
   <div class="chart-card" style="margin-bottom:16px">
     <h3>Timeline des dormances (de 97j Al Jisr à 9 ans RMLD)</h3>
     <div id="chartDormances" style="height:320px"></div>
+    <p class="chart-note">Durée des dormances en jours, classée par OSC. Une dormance ≥ 90 jours sans explication programmatique est considérée comme anomalie significative dans le corpus EAC.</p>
   </div>
   <div class="chart-card"><h3>Dormances documentées · EAC P1</h3>
     <table><thead><tr><th>Post</th><th>OSC</th><th>Durée</th><th>Note</th></tr></thead>
@@ -346,10 +407,107 @@ renderCorpus();
 </script>
 
 
-<div id="view-imn" class="view"><div class="kpi-grid"><div class="kpi"><div class="val">625</div><div class="lbl">OSC</div></div><div class="kpi"><div class="val" style="color:#f59e0b">36,6</div><div class="lbl">IMN moyen</div></div><div class="kpi"><div class="val">34,7</div><div class="lbl">Médiane</div></div><div class="kpi"><div class="val">12</div><div class="lbl">Régions</div></div></div><div id="chartImnProfils" style="height:300px;margin:20px 0;"></div></div>
+<div id="view-imn" class="view">
+  <div class="view-intro">L'Index de Maturité Numérique (IMN) est un score composite sur 100 mesurant la capacité digitale des OSC marocaines selon 8 dimensions (D1 à D9) : présence en ligne, production de contenus, interactions, gouvernance numérique, mobilisation, communication, cybersécurité, et usage des données. Enquête quantitative N=625 OSC, 12 régions.</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">625</div><div class="lbl">OSC</div><div class="lbl-detail">Taille de l'échantillon enquête quantitative</div></div>
+    <div class="kpi"><div class="val" style="color:#f59e0b">36,6</div><div class="lbl">IMN moyen</div><div class="lbl-detail">Score moyen sur 100 — niveau de maturité modéré</div></div>
+    <div class="kpi"><div class="val">34,7</div><div class="lbl">Médiane</div><div class="lbl-detail">Valeur centrale, moins sensible aux profils extrêmes</div></div>
+    <div class="kpi"><div class="val">12</div><div class="lbl">Régions</div><div class="lbl-detail">Couverture géographique nationale de l'enquête</div></div>
+  </div>
+  <div id="chartImnProfils" style="height:300px;margin:20px 0;"></div>
+  <p class="chart-note">Distribution des 5 profils IMN — N1 : absent du numérique (0-20) · N2 : présence minimale (21-35) · N3 : développement partiel (36-55) · N4 : maturité avancée (56-75) · N5 : pionnier numérique (76-100).</p>
+</div>
 
-<div id="view-j2" class="view"><div class="kpi-grid"><div class="kpi"><div class="val" style="color:#22c55e">23/23</div><div class="lbl">Entretiens</div></div><div class="kpi"><div class="val" style="color:#22c55e">100%</div><div class="lbl">Complétion</div></div><div class="kpi"><div class="val">60</div><div class="lbl">Durée moy</div></div><div class="kpi"><div class="val">5</div><div class="lbl">Profils</div></div></div><div id="chartJ2Profils" style="height:300px;margin:20px 0;"></div></div>
+<div id="view-j2" class="view">
+  <div class="view-intro">Deuxième vague d'entretiens qualitatifs (J2) : 23 responsables d'OSC sélectionnés selon un échantillonnage raisonné couvrant les 5 profils IMN et les principaux secteurs thématiques. Entretiens semi-directifs portant sur les pratiques numériques, les perceptions algorithmiques et les stratégies d'adaptation.</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val" style="color:#22c55e">23/23</div><div class="lbl">Entretiens</div><div class="lbl-detail">Réalisés sur la cible prévue — Chantier B COMPLET</div></div>
+    <div class="kpi"><div class="val" style="color:#22c55e">100%</div><div class="lbl">Complétion</div><div class="lbl-detail">Taux de réalisation de la vague J2</div></div>
+    <div class="kpi"><div class="val">60</div><div class="lbl">Durée moy</div><div class="lbl-detail">Durée moyenne par entretien en minutes</div></div>
+    <div class="kpi"><div class="val">5</div><div class="lbl">Profils</div><div class="lbl-detail">Profils IMN représentés (N1 à N5)</div></div>
+  </div>
+  <div id="chartJ2Profils" style="height:300px;margin:20px 0;"></div>
+  <p class="chart-note">Répartition des 23 interviewés par profil IMN (N1→N5). La surreprésentation des profils N3-N4 est intentionnelle : ces OSC en transition offrent les récits les plus riches sur les tensions algorithmiques.</p>
+</div>
 
-<div id="view-pilotage" class="view"><div class="kpi-grid"><div class="kpi"><div class="val" style="color:#22c55e">85%</div><div class="lbl">GLOBAL</div></div><div class="kpi"><div class="val">1 110</div><div class="lbl">Heures</div></div><div class="kpi"><div class="val">1555</div><div class="lbl">Total</div></div><div class="kpi"><div class="val">9</div><div class="lbl">Jalons ✅</div></div></div><div id="chartPilotageChantiers" style="height:320px;margin:20px 0;"></div></div>
+<div id="view-pilotage" class="view">
+  <div class="view-intro">Tableau de bord de pilotage opérationnel de la recherche MEMNM-2026 (Maturité et Écosystèmes du Mouvement des OSC au Maroc). Le score GLOBAL est une moyenne pondérée par les heures allouées à chacun des 8 chantiers (A à H). Dernière mise à jour : 06/06/2026.</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val" style="color:#22c55e">85%</div><div class="lbl">GLOBAL</div><div class="lbl-detail">Avancement pondéré par les heures — 8 chantiers</div></div>
+    <div class="kpi"><div class="val">1 110</div><div class="lbl">Heures</div><div class="lbl-detail">Heures de travail cumulées sur le projet</div></div>
+    <div class="kpi"><div class="val">1555</div><div class="lbl">Total estimé</div><div class="lbl-detail">Estimation totale jusqu'à la publication (T1-T2 2027)</div></div>
+    <div class="kpi"><div class="val">9</div><div class="lbl">Jalons ✅</div><div class="lbl-detail">Jalons critiques atteints sur le chemin critique</div></div>
+  </div>
+  <div id="chartPilotageChantiers" style="height:320px;margin:20px 0;"></div>
+  <p class="chart-note">A = Collecte quantitative (N=625) · B = Entretiens qualitatifs EAKA/SAWT · C = Social Listening EAC · D = Stats &amp; Scoring IMN · E = Rédaction Parties I-II · F = Rédaction Partie III · G = Rédaction Partie IV · H = Finalisation &amp; révision</p>
+</div>
 
-</body></html
+
+<!-- ═══════════════ GLOSSAIRE ═══════════════ -->
+<div id="view-glossaire" class="view">
+  <div class="view-intro">Définitions des abréviations, codes et termes techniques utilisés dans ce dashboard. Les codes NLP (TH_*, SIL_*) sont issus du Référentiel d'annotation EAC V1.8 — figé pour l'ensemble de la recherche MEMNM-2026.</div>
+  <div class="gloss-grid">
+    <div class="gloss-section chart-card">
+      <h4>Corpus &amp; Terrain</h4>
+      <dl>
+        <dt>EAC</dt><dd>Espaces Algorithmiques et Citoyenneté — composante Social Listening de la recherche MEMNM-2026</dd>
+        <dt>VDA</dt><dd>Veille Digitale Associative — désignation opérationnelle du dispositif de collecte terrain</dd>
+        <dt>P0 / P1</dt><dd>Phases de collecte : P0 = YouTube (phase initiale) · P1 = Facebook (2024-2025)</dd>
+        <dt>OSC</dt><dd>Organisation de la Société Civile — associations, fondations, réseaux associatifs marocains</dd>
+        <dt>J2</dt><dd>Deuxième vague d'entretiens qualitatifs (23 responsables d'OSC)</dd>
+        <dt>EAKA / SAWT</dt><dd>Désignations pseudonymisées de deux réseaux partenaires de terrain pour les entretiens J2</dd>
+        <dt>N=625</dt><dd>Taille de l'échantillon de l'enquête quantitative IMN (628 réponses, 625 validées)</dd>
+        <dt>BDD V1.6f</dt><dd>Base de données EAC — version 1.6f (06/06/2026) · 142 posts annotés · 35 OSC</dd>
+      </dl>
+    </div>
+    <div class="gloss-section chart-card">
+      <h4>Index IMN</h4>
+      <dl>
+        <dt>IMN</dt><dd>Index de Maturité Numérique — score composite sur 100 (8 dimensions D1-D9)</dd>
+        <dt>IMN-I / IMN-O</dt><dd>IMN Interne (capacités organisationnelles) / IMN Externe (visibilité &amp; engagement public)</dd>
+        <dt>N1 → N5</dt><dd>5 profils de maturité : N1 = absent (0-20) · N2 = minimal (21-35) · N3 = partiel (36-55) · N4 = avancé (56-75) · N5 = pionnier (76-100)</dd>
+        <dt>D1-D9</dt><dd>Dimensions IMN : D2=Présence · D3=Contenus · D4=Interactions · D5=Communication · D6=Mobilisation · D7=Gouvernance · D9=Données &amp; IA</dd>
+        <dt>Q-I à Q-IV</dt><dd>Quadrants IMN-I × IMN-O : Q-I = faible/faible · Q-II = fort interne/faible externe · Q-III = faible interne/fort externe · Q-IV = fort/fort</dd>
+      </dl>
+    </div>
+    <div class="gloss-section chart-card">
+      <h4>Codes NLP — Signaux</h4>
+      <dl>
+        <dt>SIL_ALGO_FB</dt><dd>Silenciation algorithmique Facebook — portée du post anormalement réduite sans suppression visible</dd>
+        <dt>RELAY_MÉDIA</dt><dd>Signal de relai par un compte médiatique externe — peut amplifier la visibilité organique</dd>
+        <dt>CHILLING</dt><dd>Effet de censure auto-induite : l'OSC adapte ses contenus en anticipant une pénalisation algorithmique</dd>
+        <dt>CHILLING_SUGGESTIF</dt><dd>CHILLING probable mais non confirmé — classé INCERTAIN · à requalifier en Phase P2</dd>
+        <dt>AUCUN</dt><dd>Aucun signal algorithmique détecté dans le post</dd>
+        <dt>REJET</dt><dd>Post exclu du corpus : hors périmètre thématique ou données insuffisantes</dd>
+      </dl>
+    </div>
+    <div class="gloss-section chart-card">
+      <h4>Codes NLP — Thèmes &amp; Hypothèses</h4>
+      <dl>
+        <dt>TH_CULT</dt><dd>Culture, patrimoine, identité, art</dd>
+        <dt>TH_GOV</dt><dd>Gouvernance, institutionnel, politique publique</dd>
+        <dt>TH_GENRE</dt><dd>Genre, droits des femmes, égalité</dd>
+        <dt>TH_RISK</dt><dd>Contenu à risque politique : droits humains, liberté d'expression, contestation</dd>
+        <dt>TH_ENV</dt><dd>Environnement, développement durable</dd>
+        <dt>H1</dt><dd>Hypothèse 1 : les OSC numériquement matures (Q-III/Q-IV) subissent davantage de silenciation algorithmique</dd>
+        <dt>H2b</dt><dd>Sous-hypothèse : les posts TH_RISK sont proportionnellement plus pénalisés — test SIL_ALGO_FB × TH_RISK</dd>
+        <dt>Scénario B</dt><dd>Seuil d'alerte : SIL_ALGO_FB Q-III ≥ 40 % → pénalisation structurelle confirmée — atteint à 47,4 %</dd>
+        <dt>κ (kappa)</dt><dd>Coefficient d'accord inter-annotateurs (Cohen's kappa) — κ=0,74 entre Claude et Gemini</dd>
+      </dl>
+    </div>
+    <div class="gloss-section chart-card" style="grid-column:1/-1">
+      <h4>Institutions &amp; Projet</h4>
+      <dl>
+        <dt>MEMNM-2026</dt><dd>« Maturité et Écosystèmes du Mouvement des OSC au Maroc » — ouvrage sous l'égide du CERSS · prévu T1-T2 2027</dd>
+        <dt>CERSS</dt><dd>Centre d'Études et de Recherches en Sciences Sociales, Rabat — institution de rattachement de la recherche</dd>
+        <dt>Prof. Abdallah Saaf</dt><dd>Directeur scientifique de la recherche MEMNM-2026, fondateur du CERSS</dd>
+        <dt>Ind.B</dt><dd>Indicateur d'engagement B : ratio (likes + commentaires) / portée estimée — résonance d'un post indépendamment de sa portée brute</dd>
+        <dt>Dormance</dt><dd>Période d'inactivité de publication d'un compte OSC. Dormance ≥ 90 jours = anomalie EAC potentielle</dd>
+        <dt>GLOBAL</dt><dd>Score d'avancement global de la recherche — moyenne pondérée par les heures allouées aux 8 chantiers (A à H)</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+</body></html>
