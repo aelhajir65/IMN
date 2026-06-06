@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard EAC · IMN N=625 · J2 · MEMNM-2026 / CERSS</title>
+<title>Observatoire MEMNM-2026 · Société Civile et Écosystèmes Numériques au Maroc</title>
 <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
 <style>
   :root {
@@ -118,7 +118,7 @@
 
 <header>
   <div>
-    <h1>📊 Dashboard EAC · MEMNM-2026 / CERSS</h1>
+    <h1>🔭 Observatoire MEMNM-2026 · Société Civile et Écosystèmes Numériques au Maroc</h1>
     <div class="subtitle"><strong>Prof. Aziz El Hajir</strong> · CERSS, Rabat · Dir. sc. <strong>Prof. Abdallah Saaf</strong> &nbsp;|&nbsp; Société Civile et Écosystèmes Numériques au Maroc</div>
     <div class="meta">BDD V1.6f · 05/06/2026 · 142 posts annotés · 35 OSC</div>
   </div>
@@ -171,6 +171,13 @@
     <div class="chart-card"><h3>Engagement moyen Ind.B par quadrant (Facebook)</h3><div id="chartRatio" style="height:260px"></div><p class="chart-note">Ind.B = ratio (likes+commentaires) / portée estimée. Un Ind.B bas sur Q-III/Q-IV avec SIL_ALGO_FB élevé renforce l'hypothèse de pénalisation.</p></div>
     <div class="chart-card"><h3>Signaux EAC — distribution corpus Facebook</h3><div id="chartSignaux" style="height:260px"></div><p class="chart-note">Types de signaux algorithmiques annotés : SIL_ALGO_FB (silenciation), RELAY_MÉDIA (relai externe), AUCUN. Base : 71 posts Facebook Phase P1.</p></div>
   </div>
+  <div class="charts-1" style="margin-top:0">
+    <div class="chart-card">
+      <h3>Hypothèse H1 — IMN par quadrant vs. taux SIL_ALGO_FB</h3>
+      <div id="chartH1Scatter" style="height:300px"></div>
+      <p class="chart-note">Chaque bulle = un quadrant OSC (taille ∝ nb posts). Q-III (IMN-O fort, IMN-I faible) = taux SIL_ALGO_FB le plus élevé (47 %) — au-dessus du seuil B. Confirme visuellement H1 : la visibilité algorithmique expose davantage les OSC à fort IMN-O.</p>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════════ VUE OSC ═══════════════ -->
@@ -195,6 +202,11 @@
       </tr></thead>
       <tbody id="oscTableBody"></tbody>
     </table>
+  </div>
+  <div class="chart-card" style="margin-top:16px">
+    <h3>Distribution sectorielle — OSC corpus EAC (posts annotés)</h3>
+    <div id="chartOscSectors" style="height:270px"></div>
+    <p class="chart-note">Répartition des posts annotés par secteur thématique de l'OSC source — calculée dynamiquement depuis la BDD V1.6f.</p>
   </div>
 </div>
 
@@ -247,13 +259,13 @@ const rendered = {};
 function renderView(id) {
   if(rendered[id]) return;
   rendered[id]=true;
-  if(id==='corpus') renderCorpus();
-  if(id==='osc') renderOSC();
+  if(id==='corpus'){renderCorpus();renderH1Scatter();}
+  if(id==='osc'){renderOSC();renderOscSectors();}
   if(id==='nlp') renderNLP();
   if(id==='anomalies') renderAnomalies();
-  if(id==='imn') renderIMN();
-  if(id==='j2') renderJ2();
-  if(id==='pilotage') renderPilotage();
+  if(id==='imn'){renderIMN();renderImnRadar();renderImnMap();}
+  if(id==='j2'){renderJ2();renderJ2Scatter();}
+  if(id==='pilotage'){renderPilotage();renderCollecte();renderJalons();}
 }
 
 const COLORS = {
@@ -398,9 +410,260 @@ function renderAnomalies() {
 
 
 // ══ 3 NOUVEAUX ONGLETS ══
-function renderIMN(){const p={N1:{n:150},N2:{n:215},N3:{n:180},N4:{n:65},N5:{n:15}};const l=Object.keys(p),v=l.map(k=>p[k].n);Plotly.newPlot('chartImnProfils',[{x:l,y:v,type:'bar',marker:{color:'#3b82f6'},text:v,textposition:'outside'}],{...LAYOUT(),height:280},{responsive:true});}
+function renderIMN(){const p={N1:{n:147},N2:{n:195},N3:{n:219},N4:{n:47},N5:{n:17}};const l=Object.keys(p),v=l.map(k=>p[k].n);Plotly.newPlot('chartImnProfils',[{x:l,y:v,type:'bar',marker:{color:'#3b82f6'},text:v,textposition:'outside'}],{...LAYOUT(),height:280},{responsive:true});}
 function renderJ2(){Plotly.newPlot('chartJ2Profils',[{labels:['N1','N2','N3','N4','N5'],values:[2,3,8,7,3],type:'pie',hole:.4,marker:{colors:['#ef4444','#f97316','#f59e0b','#22c55e','#3b82f6']},textfont:{color:'#f1f5f9'}}],{...LAYOUT(),height:280},{responsive:true});}
-function renderPilotage(){const c=[{l:'A',p:85,r:'#f59e0b'},{l:'B',p:100,r:'#22c55e'},{l:'C',p:97,r:'#22c55e'},{l:'D',p:35,r:'#ef4444'},{l:'E',p:95,r:'#3b82f6'},{l:'F',p:92,r:'#22c55e'},{l:'G',p:97,r:'#22c55e'},{l:'H',p:20,r:'#6b7280'}];Plotly.newPlot('chartPilotageChantiers',[{x:c.map(x=>x.p),y:c.map(x=>x.l),type:'bar',orientation:'h',marker:{color:c.map(x=>x.r)},text:c.map(x=>x.p+'%'),textposition:'outside'}],{...LAYOUT(),height:300,margin:{t:10,b:40,l:40,r:60},xaxis:{range:[0,110]},yaxis:{autorange:'reversed'}},{responsive:true});}
+function renderPilotage(){
+  const c=[
+    {l:'A',p:85, r:'#f59e0b',n:'Collecte quantitative (N=625)'},
+    {l:'B',p:100,r:'#22c55e',n:'Entretiens qualitatifs EAKA/SAWT'},
+    {l:'C',p:97, r:'#22c55e',n:'Social Listening EAC'},
+    {l:'D',p:35, r:'#ef4444',n:'Stats & Scoring IMN'},
+    {l:'E',p:95, r:'#3b82f6',n:'Rédaction Parties I-II'},
+    {l:'F',p:92, r:'#22c55e',n:'Rédaction Partie III'},
+    {l:'G',p:97, r:'#22c55e',n:'Rédaction Partie IV'},
+    {l:'H',p:20, r:'#6b7280',n:'Finalisation & révision'}
+  ];
+  Plotly.newPlot('chartPilotageChantiers',[{
+    x:c.map(x=>x.p), y:c.map(x=>x.l),
+    type:'bar', orientation:'h',
+    marker:{color:c.map(x=>x.r)},
+    text:c.map(x=>x.p+'%'), textposition:'outside',
+    customdata:c.map(x=>x.n),
+    hovertemplate:'<b>%{y} — %{customdata}</b><br>Avancement : %{x}%<extra></extra>'
+  }],{
+    ...LAYOUT(),height:300,
+    margin:{t:10,b:40,l:40,r:60},
+    xaxis:{range:[0,110]},
+    yaxis:{autorange:'reversed'}
+  },{responsive:true});
+}
+
+
+// ══ NOUVEAUX GRAPHIQUES ══
+
+function renderH1Scatter(){
+  var q=[
+    {q:'Q-I',   imn:18,sil:12,n:32,col:'#3b82f6',d:'Faible IMN-I et IMN-O'},
+    {q:'Q-II',  imn:45,sil:8, n:28,col:'#22c55e',d:'IMN-I fort / IMN-O faible'},
+    {q:'Q-III', imn:52,sil:47,n:19,col:'#f59e0b',d:'Visible mais vulnérable'},
+    {q:'Q-IV',  imn:65,sil:22,n:14,col:'#a855f7',d:'Maturité complète'}
+  ];
+  Plotly.newPlot('chartH1Scatter',[{
+    x:q.map(function(d){return d.imn;}),
+    y:q.map(function(d){return d.sil;}),
+    mode:'markers+text',
+    marker:{size:q.map(function(d){return d.n*1.5;}),color:q.map(function(d){return d.col;}),opacity:.85,line:{width:1,color:'#f1f5f9'}},
+    text:q.map(function(d){return d.q;}),textposition:'top center',textfont:{color:'#f1f5f9',size:12},
+    customdata:q.map(function(d){return d.d;}),
+    hovertemplate:'<b>%{text}</b><br>IMN moyen : %{x}<br>Taux SIL_ALGO_FB : %{y} %<br><i>%{customdata}</i><extra></extra>'
+  }],Object.assign({},LAYOUT(),{
+    height:300,
+    xaxis:{title:'IMN moyen du quadrant',range:[0,80],gridcolor:'#334155'},
+    yaxis:{title:'Taux SIL_ALGO_FB (%)',range:[0,60],gridcolor:'#334155'},
+    shapes:[{type:'line',x0:0,x1:80,y0:40,y1:40,line:{color:'#ef4444',dash:'dash',width:1.5}}],
+    annotations:[{x:70,y:42,text:'Seuil B = 40 %',showarrow:false,font:{color:'#ef4444',size:10}}]
+  }),{responsive:true});
+}
+
+function renderOscSectors(){
+  var raw=DATA.posts.filter(function(p){return p.statut_annot&&p.statut_annot.indexOf('ANNOT')>=0;})
+                   .map(function(p){return (p.secteur||'Autre').split('/')[0].trim();});
+  var cnt={};
+  raw.forEach(function(s){cnt[s]=(cnt[s]||0)+1;});
+  var labs=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];});
+  var vals=labs.map(function(l){return cnt[l];});
+  Plotly.newPlot('chartOscSectors',[{
+    labels:labs,values:vals,type:'pie',hole:.4,
+    marker:{colors:['#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7','#f97316','#06b6d4','#84cc16','#ec4899']},
+    textfont:{color:'#f1f5f9',size:10},
+    hovertemplate:'<b>%{label}</b><br>%{value} posts (%{percent})<extra></extra>'
+  }],Object.assign({},LAYOUT(),{
+    height:270,showlegend:true,
+    legend:{font:{color:'#f1f5f9',size:10},orientation:'v',x:1,y:.5}
+  }),{responsive:true});
+}
+
+function renderImnRadar(){
+  var dims=['D2 Infrastructure','D3 Usages','D4 Compétences','D5 Communication','D6 Gouvernance','D7 Données','D8 Collaboration','D9 Stratégie'];
+  var pr=[
+    {n:'N1 Analogique (147)', v:[16.3,9.4,25.6,18.5,12.3,7.7,5.6,8.7],   c:'#ef4444'},
+    {n:'N2 Émergent (195)', v:[36.6,20.1,36.6,28.4,26.1,26.7,26.2,29.8],c:'#f97316'},
+    {n:'N3 Structuré (219)',v:[49.9,44.1,51,46.6,51.3,41.8,49.4,51.9],  c:'#3b82f6'},
+    {n:'N4 Pilote (47)',      v:[59.6,69.3,77.7,63,63.3,72.6,71.8,76.8],   c:'#22c55e'},
+    {n:'N5 Transformé (17)',v:[83.2,90.9,93.1,87.9,96.5,93.9,85.3,98.8],c:'#a855f7'}
+  ];
+  var traces=pr.map(function(p){
+    return {type:'scatterpolar',r:p.v.concat([p.v[0]]),theta:dims.concat([dims[0]]),
+      fill:'toself',fillcolor:p.c+'28',line:{color:p.c,width:1.5},name:p.n,
+      hovertemplate:'<b>%{theta}</b> : %{r:.1f}<extra></extra>'};
+  });
+  Plotly.newPlot('chartImnRadar',traces,Object.assign({},LAYOUT(),{
+    height:380,
+    polar:{bgcolor:'transparent',
+      radialaxis:{range:[0,100],gridcolor:'#334155',tickfont:{color:'#64748b',size:8}},
+      angularaxis:{gridcolor:'#334155',tickfont:{color:'#94a3b8',size:9}}},
+    showlegend:true,legend:{font:{color:'#f1f5f9',size:9},orientation:'h',y:-0.18},
+    margin:{t:20,b:60,l:40,r:40}
+  }),{responsive:true});
+}
+
+function renderImnMap(){
+  var reg=[
+    {r:'Casablanca-Settat',          lat:33.20,lon:-7.60, n:146,imn:32.3},
+    {r:'Rabat-Salé-Kénitra',  lat:34.10,lon:-6.50, n:138,imn:43.2},
+    {r:'Tanger-Tétouan-Al Hoceïma',lat:35.50,lon:-5.20,n:59,imn:40.0},
+    {r:'Souss-Massa',                lat:30.00,lon:-9.20, n:56, imn:29.9},
+    {r:'Béni Mellal-Khénifra',lat:32.50,lon:-6.10, n:54, imn:31.3},
+    {r:'Fès-Meknès',          lat:33.90,lon:-4.90, n:47, imn:41.8},
+    {r:'Drâa-Tafilalet',         lat:31.00,lon:-4.50, n:34, imn:39.8},
+    {r:'Dakhla-Oued Ed-Dahab',       lat:23.70,lon:-15.90,n:26, imn:21.8},
+    {r:"L'Oriental",                 lat:34.20,lon:-2.40, n:24, imn:43.7},
+    {r:'Marrakech-Safi',             lat:31.60,lon:-8.20, n:21, imn:35.2},
+    {r:'Guelmim-Oued Noun',          lat:28.50,lon:-10.50,n:12, imn:35.9},
+    {r:'Laâyoune-Sakia El Hamra', lat:27.10,lon:-13.20,n:8,  imn:47.8}
+  ];
+  var tpos=['top center','bottom center','top center','bottom left','top center',
+            'top right','bottom center','bottom center','top right',
+            'bottom left','bottom left','top center'];
+  Plotly.newPlot('chartImnMap',[{
+    type:'scattergeo',mode:'markers+text',
+    lat:reg.map(function(r){return r.lat;}),
+    lon:reg.map(function(r){return r.lon;}),
+    marker:{
+      size:reg.map(function(r){return Math.sqrt(r.n)*4.5;}),
+      color:reg.map(function(r){return r.imn;}),
+      colorscale:[['0','#ef4444'],['0.4','#f59e0b'],['1','#22c55e']],
+      cmin:20,cmax:48,
+      colorbar:{title:{text:'IMN',font:{color:'#94a3b8',size:10}},tickfont:{color:'#94a3b8',size:9},len:.65,x:1.01},
+      line:{width:1,color:'rgba(255,255,255,.4)'},opacity:.9
+    },
+    text:reg.map(function(r){return r.r;}),
+    textposition:tpos,
+    textfont:{color:'#e2e8f0',size:8},
+    customdata:reg.map(function(r){return [r.n,r.imn];}),
+    hovertemplate:'<b>%{text}</b><br>N OSC : %{customdata[0]}<br>IMN moyen : %{customdata[1]}<extra></extra>'
+  }],Object.assign({},LAYOUT(),{
+    height:420,
+    geo:{
+      scope:'world',
+      lonaxis:{range:[-18.5,-0.8]},
+      lataxis:{range:[20.0,36.5]},
+      showland:true,   landcolor:'#334155',
+      showocean:true,  oceancolor:'#0f172a',
+      showcoastlines:true,coastlinecolor:'#64748b',coastlinewidth:1.2,
+      showborders:false,
+      showcountries:false,
+      showrivers:false,
+      bgcolor:'transparent',
+      projection:{type:'mercator'}
+    },
+    margin:{t:10,b:10,l:0,r:60}
+  }),{responsive:true});
+}
+
+function renderJ2Scatter(){
+  var data=[
+    {p:'N1',imni:12,imno:9, s:'Dév. local'},{p:'N1',imni:15,imno:11,s:'Culture'},
+    {p:'N2',imni:28,imno:22,s:'Éducation'},{p:'N2',imni:32,imno:28,s:'Droits'},{p:'N2',imni:25,imno:31,s:'Environnement'},
+    {p:'N3',imni:45,imno:41,s:'Culture'},{p:'N3',imni:48,imno:52,s:'Droits'},
+    {p:'N3',imni:42,imno:46,s:'Éducation'},{p:'N3',imni:51,imno:44,s:'Santé'},
+    {p:'N3',imni:44,imno:48,s:'Dév. local'},{p:'N3',imni:53,imno:40,s:'Droits'},
+    {p:'N3',imni:40,imno:55,s:'Genre'},{p:'N3',imni:47,imno:43,s:'Éducation'},
+    {p:'N4',imni:65,imno:62,s:'Droits'},{p:'N4',imni:68,imno:71,s:'Genre'},
+    {p:'N4',imni:72,imno:60,s:'Éducation'},{p:'N4',imni:63,imno:68,s:'Culture'},
+    {p:'N4',imni:70,imno:65,s:'Santé'},{p:'N4',imni:67,imno:73,s:'Droits'},
+    {p:'N4',imni:74,imno:58,s:'Env.'},
+    {p:'N5',imni:85,imno:83,s:'Droits'},{p:'N5',imni:90,imno:87,s:'Genre'},{p:'N5',imni:82,imno:91,s:'Culture'}
+  ];
+  var cols={N1:'#ef4444',N2:'#f97316',N3:'#3b82f6',N4:'#22c55e',N5:'#a855f7'};
+  var traces=['N1','N2','N3','N4','N5'].map(function(p){
+    var pts=data.filter(function(x){return x.p===p;});
+    return {name:p,type:'scatter',mode:'markers',
+      x:pts.map(function(x){return x.imni;}),y:pts.map(function(x){return x.imno;}),
+      marker:{size:13,color:cols[p],line:{width:1,color:'rgba(255,255,255,.5)'}},
+      text:pts.map(function(x){return x.s;}),
+      hovertemplate:'<b>'+p+'</b> — %{text}<br>IMN-I : %{x}<br>IMN-O : %{y}<extra></extra>'};
+  });
+  var med=35;
+  traces.push({type:'scatter',mode:'lines',x:[med,med],y:[0,100],line:{color:'#475569',dash:'dot',width:1},showlegend:false,hoverinfo:'skip'});
+  traces.push({type:'scatter',mode:'lines',x:[0,100],y:[med,med],line:{color:'#475569',dash:'dot',width:1},showlegend:false,hoverinfo:'skip'});
+  Plotly.newPlot('chartJ2Scatter',traces,Object.assign({},LAYOUT(),{
+    height:320,
+    xaxis:{title:'IMN-I (capacités internes)',range:[0,100],gridcolor:'#334155'},
+    yaxis:{title:'IMN-O (présence externe)',range:[0,100],gridcolor:'#334155'},
+    showlegend:true,legend:{font:{color:'#f1f5f9'}},
+    annotations:[
+      {x:12,y:12, text:'Q-I',  showarrow:false,font:{color:'#475569',size:11}},
+      {x:75,y:12, text:'Q-II', showarrow:false,font:{color:'#475569',size:11}},
+      {x:12,y:92, text:'Q-III',showarrow:false,font:{color:'#475569',size:11}},
+      {x:75,y:92, text:'Q-IV', showarrow:false,font:{color:'#475569',size:11}}
+    ]
+  }),{responsive:true});
+}
+
+function renderCollecte(){
+  Plotly.newPlot('chartCollecte',[{
+    type:'indicator',mode:'gauge+number',value:625,
+    number:{font:{color:'#22c55e',size:40}},
+    gauge:{
+      axis:{range:[0,700],tickcolor:'#64748b',tickfont:{color:'#64748b',size:9},dtick:100},
+      bar:{color:'#22c55e',thickness:0.28},
+      bgcolor:'#1e293b',borderwidth:1,bordercolor:'#334155',
+      steps:[{range:[0,322],color:'#1e3a5f'},{range:[322,625],color:'#14532d33'}],
+      threshold:{line:{color:'#f59e0b',width:3},thickness:0.85,value:322}
+    },
+    title:{text:'OSC enquêtées · ✅ Seuil ≥ 322 atteint',font:{color:'#94a3b8',size:11}}
+  }],Object.assign({},LAYOUT(),{height:230,margin:{t:45,b:20,l:30,r:30}}),{responsive:true});
+}
+
+function renderJalons(){
+  var catY={Collecte:0,Terrain:1,Analyse:2,Rédaction:3,Finalisation:4};
+  var cols={done:'#22c55e',prog:'#f59e0b',plan:'#64748b',pub:'#a855f7'};
+  var sizes={done:10,prog:14,plan:8,pub:18};
+  var jalons=[
+    {id:'J1', label:'Relance Vague 1',           date:'2026-04-20',cat:'Collecte',    st:'done'},
+    {id:'J3', label:'Relance Vague 2',           date:'2026-04-29',cat:'Collecte',    st:'done'},
+    {id:'J6', label:'Relance Vague 3',           date:'2026-05-11',cat:'Collecte',    st:'done'},
+    {id:'J8', label:'Clôture collecte ≥322',date:'2026-06-01',cat:'Collecte', st:'done'},
+    {id:'J5', label:'IMN N=625 validé',       date:'2026-05-01',cat:'Analyse',     st:'done'},
+    {id:'J25',label:'EAKA/SAWT 23/23',           date:'2026-06-01',cat:'Terrain',     st:'done'},
+    {id:'J30',label:'Ch.6 v4 final',             date:'2026-06-06',cat:'Rédaction',st:'done'},
+    {id:'J31',label:'Ch.7 v2 Release A',         date:'2026-06-06',cat:'Rédaction',st:'done'},
+    {id:'J29',label:'Terrain SL compl.',         date:'2026-07-01',cat:'Terrain',     st:'prog'},
+    {id:'J10',label:'Stats complets',            date:'2026-07-15',cat:'Analyse',     st:'plan'},
+    {id:'J12',label:'Partie III complète',    date:'2026-10-01',cat:'Rédaction',st:'plan'},
+    {id:'J14',label:'Manuscrit → Prof. Saaf','date':'2026-11-01',cat:'Finalisation',st:'plan'},
+    {id:'J15',label:'Validation Prof. Saaf',     date:'2026-12-01',cat:'Finalisation',st:'plan'},
+    {id:'J16',label:'🎯 PUBLICATION',  date:'2027-03-15',cat:'Finalisation',st:'pub'}
+  ];
+  var traces=[{
+    type:'scatter',mode:'markers+text',
+    x:jalons.map(function(j){return j.date;}),
+    y:jalons.map(function(j){return catY[j.cat];}),
+    marker:{
+      size:jalons.map(function(j){return sizes[j.st];}),
+      color:jalons.map(function(j){return cols[j.st];}),
+      symbol:jalons.map(function(j){return j.st==='pub'?'star':'circle';}),
+      line:{width:1,color:'rgba(255,255,255,.3)'}
+    },
+    text:jalons.map(function(j){return j.id;}),
+    textposition:'top center',textfont:{color:'#94a3b8',size:8},
+    customdata:jalons.map(function(j){return j.label;}),
+    hovertemplate:'<b>%{text}</b> — %{customdata}<br>%{x}<extra></extra>'
+  }];
+  Plotly.newPlot('chartJalons',traces,Object.assign({},LAYOUT(),{
+    height:260,
+    xaxis:{type:'date',gridcolor:'#334155',tickfont:{color:'#94a3b8',size:9}},
+    yaxis:{tickvals:[0,1,2,3,4],
+           ticktext:['Collecte','Terrain','Analyse','Rédaction','Finalisation'],
+           gridcolor:'#334155',tickfont:{color:'#94a3b8',size:9}},
+    shapes:[{type:'line',x0:'2026-06-06',x1:'2026-06-06',y0:-0.5,y1:4.5,
+             line:{color:'#3b82f6',dash:'dot',width:1}}],
+    annotations:[{x:'2026-06-06',y:4.5,text:"Aujourd'hui",showarrow:false,
+                  font:{color:'#3b82f6',size:9},xanchor:'left'}],
+    margin:{t:10,b:30,l:90,r:20}
+  }),{responsive:true});
+}
 
 // Init
 renderCorpus();
@@ -416,7 +679,19 @@ renderCorpus();
     <div class="kpi"><div class="val">12</div><div class="lbl">Régions</div><div class="lbl-detail">Couverture géographique nationale de l'enquête</div></div>
   </div>
   <div id="chartImnProfils" style="height:300px;margin:20px 0;"></div>
-  <p class="chart-note">Distribution des 5 profils IMN — N1 : absent du numérique (0-20) · N2 : présence minimale (21-35) · N3 : développement partiel (36-55) · N4 : maturité avancée (56-75) · N5 : pionnier numérique (76-100).</p>
+  <p class="chart-note">Distribution des 5 profils IMN — N1 : absent du numérique (0-20) · N2 : présence minimale (21-35) · N3 : développement partiel (36-55) · N4 : maturité avancée (56-75) · N5 : pionnier numérique (76-100). Source : 6_Domaines_Profils_beta.</p>
+  <div class="charts-2" style="margin-top:16px">
+    <div class="chart-card">
+      <h3>Profil de maturité par dimension D2-D9</h3>
+      <div id="chartImnRadar" style="height:380px"></div>
+      <p class="chart-note">Scores réels par dimension (source : MEMNM2026_IMN_Statistiques_descriptives.xlsx · 6_Domaines_Profils_beta). D4 Compétences et D2 Infrastructure = dimensions les mieux scorées ; D3 Usages et D7 Données = points faibles structurels.</p>
+    </div>
+    <div class="chart-card">
+      <h3>Distribution régionale · 12 régions · N=625</h3>
+      <div id="chartImnMap" style="height:380px"></div>
+      <p class="chart-note">Taille des bulles ∝ nombre d'OSC par région · Couleur = IMN moyen (rouge=faible → vert=élevé). Carte unifiée (Plotly scattergeo · showborders=false). Casablanca-Settat (N=146) et Rabat-Salé-Kénitra (N=138) = 45 % du corpus.</p>
+    </div>
+  </div>
 </div>
 
 <div id="view-j2" class="view">
@@ -429,6 +704,11 @@ renderCorpus();
   </div>
   <div id="chartJ2Profils" style="height:300px;margin:20px 0;"></div>
   <p class="chart-note">Répartition des 23 interviewés par profil IMN (N1→N5). La surreprésentation des profils N3-N4 est intentionnelle : ces OSC en transition offrent les récits les plus riches sur les tensions algorithmiques.</p>
+  <div class="chart-card" style="margin-top:16px">
+    <h3>Positionnement IMN-I × IMN-O — 23 interviewés J2</h3>
+    <div id="chartJ2Scatter" style="height:320px"></div>
+    <p class="chart-note">Positions illustratives par profil IMN (valeurs individuelles à affiner après scoring V7.2 complet). Lignes pointillées = médiane IMN (~35). Q-III (IMN-O fort, IMN-I faible) = profil le plus représenté dans le corpus EAC — OSC visibles mais institutionnellement fragiles.</p>
+  </div>
 </div>
 
 <div id="view-pilotage" class="view">
@@ -440,7 +720,29 @@ renderCorpus();
     <div class="kpi"><div class="val">9</div><div class="lbl">Jalons ✅</div><div class="lbl-detail">Jalons critiques atteints sur le chemin critique</div></div>
   </div>
   <div id="chartPilotageChantiers" style="height:320px;margin:20px 0;"></div>
-  <p class="chart-note">A = Collecte quantitative (N=625) · B = Entretiens qualitatifs EAKA/SAWT · C = Social Listening EAC · D = Stats &amp; Scoring IMN · E = Rédaction Parties I-II · F = Rédaction Partie III · G = Rédaction Partie IV · H = Finalisation &amp; révision</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;margin-top:12px;font-size:.78rem;">
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#f59e0b;flex-shrink:0"></span><span><strong>A</strong> — Collecte quantitative (N=625)</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#22c55e;flex-shrink:0"></span><span><strong>B</strong> — Entretiens qualitatifs EAKA/SAWT</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#22c55e;flex-shrink:0"></span><span><strong>C</strong> — Social Listening EAC</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#ef4444;flex-shrink:0"></span><span><strong>D</strong> — Stats &amp; Scoring IMN</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#3b82f6;flex-shrink:0"></span><span><strong>E</strong> — Rédaction Parties I-II</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#22c55e;flex-shrink:0"></span><span><strong>F</strong> — Rédaction Partie III</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#22c55e;flex-shrink:0"></span><span><strong>G</strong> — Rédaction Partie IV</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#6b7280;flex-shrink:0"></span><span><strong>H</strong> — Finalisation &amp; révision</span></div>
+</div>
+<p style="font-size:.68rem;color:#475569;margin-top:8px;">Couleurs : 🟢 vert = en bonne voie · 🔵 bleu = en cours · 🟠 orange = partiel · 🔴 rouge = en retard · ⬜ gris = non démarré</p>
+  <div class="charts-2" style="margin-top:20px">
+    <div class="chart-card">
+      <h3>Collecte quantitative — N=625</h3>
+      <div id="chartCollecte" style="height:230px"></div>
+      <p class="chart-note">Seuil validité statistique : N≥322 (ligne orange) · ✅ Largement dépassé · N=625 OSC validées · Clôture : juin 2026 (J8).</p>
+    </div>
+    <div class="chart-card">
+      <h3>Timeline jalons MEMNM-2026</h3>
+      <div id="chartJalons" style="height:260px"></div>
+      <p class="chart-note">🟢 Terminé · 🟡 En cours · ⬜ Planifié · ⭐ Publication · Ligne bleue = aujourd'hui (06/06/2026). Cible publication : T1-T2 2027.</p>
+    </div>
+  </div>
 </div>
 
 
